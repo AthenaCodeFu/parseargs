@@ -9,8 +9,24 @@ sub new {
 	bless $self, $class;
 
 	$self->{SCHEMA} = $args;
-	$self->{VALUES} = {};
+	$self->{VALUES} = $self->_LoadDefaults();
 	return $self;
+}
+
+sub _LoadDefaults {
+	my ($self, $flag) = @_;
+	my %defaultvalues;
+
+	for my $switchname (keys $self->{SCHEMA}) {
+		if ($self->{SCHEMA}{$switchname} =~ /num/i) {
+			$defaultvalues{$switchname} = 0;
+		}
+		else {
+			$defaultvalues{$switchname} = '';
+		}
+	}
+	
+	return \%defaultvalues;
 }
 
 sub Parse {
@@ -24,12 +40,13 @@ sub Parse {
 		if ($arg =~ /^-/) {
 			my $switchname = substr($arg, 1);
 			if ($schema->{$switchname}) {
+				# Boolean switches default to true if present
 				if ($schema->{$switchname} eq 'bool'){
-					# write 1 to parsed values
+					$self->{VALUES}{$switchname} = 1;
 				}
 				else {
 					my $switcharg = shift @args;
-					# Process this arg
+					$self->{VALUES}{$switchname} = $switcharg;
 				}
 			}
 			else {
@@ -41,18 +58,11 @@ sub Parse {
 			die "Not a valid switch: $arg";
 		}
 	}
-	#$self->{VALUES} = {@{$self->{ARGS}}};
-	# foreach my $arg (@args) {
-	# 	if ($arg =~ /^-p/) {
-			
-	# 	}
-	# 	#elsif 
-	# 	# $self->{ARGS}
-	# }
 }
 
 sub Get {
-	return 1;
+	my ($self, $flag) = @_;
+	return $self->{VALUES}{$flag};
 }
 
 1;
