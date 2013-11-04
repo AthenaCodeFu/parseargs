@@ -1,58 +1,48 @@
+package ParseArgs;
 use strict;
 use warnings;
+no warnings 'uninitialized';
+use Moose;
 
-package ParseArgs;
-
-sub new {
-	my ($class, $args) = @_;
-	my $self = {};
-	bless $self, $class;
-
-	$self->{SCHEMA} = $args;
-	$self->{VALUES} = {};
-	return $self;
-}
+has 'SCHEMA' => (
+	is => 'rw',
+);
+has VALUES => (
+	is => 'rw',
+	default => sub {{}},
+);
 
 sub Parse {
 	my ($self, @args) = @_;
 	my $schema = $self->{SCHEMA};
 
-	while (@args) {
-		my $arg = shift @args;
-
-		# command-line switch
-		if ($arg =~ /^-/) {
-			my $switchname = substr($arg, 1);
-			if ($schema->{$switchname}) {
-				if ($schema->{$switchname} eq 'bool'){
-					# write 1 to parsed values
-				}
-				else {
-					my $switcharg = shift @args;
-					# Process this arg
-				}
+	my $capture_next_arg;
+	for my $arg (@args) {
+		if ($capture_next_arg) {
+			$self->{VALUES}{$capture_next_arg} = $arg;
+			$capture_next_arg = 0;
+		}
+		else {
+			$arg =~ s/^-//;
+			if ($self->SchemaType($arg) eq 'bool') {
+				$self->{VALUES}{$arg} = 1;
 			}
 			else {
-				die "invalid switch name $switchname";
+				$capture_next_arg = $arg;
 			}
 		}
-		# arg to switch
-		else {
-			die "Not a valid switch: $arg";
-		}
 	}
-	#$self->{VALUES} = {@{$self->{ARGS}}};
-	# foreach my $arg (@args) {
-	# 	if ($arg =~ /^-p/) {
-			
-	# 	}
-	# 	#elsif 
-	# 	# $self->{ARGS}
-	# }
+}
+
+sub SchemaType {
+	my ($self, $arg) = @_;
+	$arg =~ s/^-//;
+	return $self->{SCHEMA}{$arg};
 }
 
 sub Get {
-	return 1;
+	my ($self, $arg) = @_;
+	return $self->{VALUES}{$arg};
 }
 
 1;

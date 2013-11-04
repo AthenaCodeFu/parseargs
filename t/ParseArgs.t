@@ -1,13 +1,10 @@
 #!/usr/bin/local/perl
-use v5.16;
-use Athena::Lib;
-
 use Test::More;
 use ParseArgs;
 
 my $parser;
 
-$parser = ParseArgs->new({
+$parser = ParseArgs->new(SCHEMA => {
 	l => 'bool',
 	p => 'num',
 	d => 'str',
