@@ -1,5 +1,7 @@
 # Command Line Arguments
 
+## Problem Description
+
 Most of us have had to parse command-line arguments from time to time. If we
 don't have a convenient utility, then we simply walk the array of strings that
 is passed into the main function. There are several good utilities available
@@ -42,3 +44,26 @@ the `d` flag indicates a list of integers, `[1, 2, -3, 5]`.
 Make sure your code is extensible, in that it is straightforward and obvious
 how to add new types of values. 
 
+## Current Features
+
+* single-character flags
+* numeric/string/boolean flag types
+* default values for unspecified flags
+
+## Missing Features
+
+* list types (this is partially implemented)
+* validation for numeric values
+
+## Usage Example
+
+From the unit test file:
+
+	my $parser = ParseArgs->new({l => 'bool', p => 'num', d => 'str', -x => 'bool'});
+	$parser->Parse(@ARGV);
+	
+	# assuming the command line contained "script_name -l -p 8080 -d /usr/logs":
+	$parser->Get('l');  # => 1
+	$parser->Get('p');  # => 8080
+	$parser->Get('d');  # => '/usr/logs'
+	$parser->Get('x');  # => false value (because the command line didn't contain -x)
